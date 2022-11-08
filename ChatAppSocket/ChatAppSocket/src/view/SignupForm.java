@@ -5,9 +5,7 @@
  */
 package view;
 
-import static controller.ClientFrame.ACCOUNT_EXIST;
-import static controller.ClientFrame.NICKNAME_EXIST;
-import static controller.ClientFrame.PASSWORD_CONFIRM;
+
 import java.awt.Color;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -64,9 +62,9 @@ public class SignupForm extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         edtAddress = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
-        edtPassWord = new javax.swing.JTextField();
+        edtPassWord = new javax.swing.JPasswordField();
         jLabel9 = new javax.swing.JLabel();
-        edtConfirmPassword = new javax.swing.JTextField();
+        edtConfirmPassword = new javax.swing.JPasswordField();
         jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -151,7 +149,7 @@ public class SignupForm extends javax.swing.JFrame {
 
         edtConfirmPassword.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         edtConfirmPassword.setForeground(new java.awt.Color(153, 153, 153));
-        edtConfirmPassword.setText("Confirm Password");
+        edtConfirmPassword.setText("Password");
         edtConfirmPassword.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 edtConfirmPasswordFocusGained(evt);
@@ -308,7 +306,7 @@ public class SignupForm extends javax.swing.JFrame {
 
     private void edtConfirmPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_edtConfirmPasswordFocusGained
         // TODO add your handling code here:
-        if (edtConfirmPassword.getText().equals("Confirm Password")) {
+        if (edtConfirmPassword.getText().equals("Password")) {
             edtConfirmPassword.setText("");
             edtConfirmPassword.setForeground(new Color(0, 0, 0));
         }
@@ -317,7 +315,7 @@ public class SignupForm extends javax.swing.JFrame {
     private void edtConfirmPasswordFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_edtConfirmPasswordFocusLost
         // TODO add your handling code here:
         if (edtConfirmPassword.getText().equals("")) {
-            edtConfirmPassword.setText("Confirm Password");
+            edtConfirmPassword.setText("Password");
             edtConfirmPassword.setForeground(new Color(153, 153, 153));
         }
     }//GEN-LAST:event_edtConfirmPasswordFocusLost

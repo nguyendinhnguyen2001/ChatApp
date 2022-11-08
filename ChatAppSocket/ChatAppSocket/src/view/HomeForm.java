@@ -5,9 +5,11 @@
  */
 package view;
 
-import controller.ClientFrame;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.List;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -16,9 +18,16 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import model.Group;
 import model.Message;
@@ -47,7 +56,7 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
     private ArrayList<Message> listMessage;
     private String textMessage = "";
 
-    public HomeForm(Socket socket, User user, ObjectInputStream ois, ObjectOutputStream oos) throws IOException {
+    public HomeForm(Socket socket, User user, ObjectInputStream ois, ObjectOutputStream oos, int active) throws IOException {
         initComponents();
         this.socket = socket;
         this.user = user;
@@ -62,11 +71,18 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
         this.listFriend1 = (ArrayList<User>) user.getListFriend();
         txtNameUser.setText("Name user: " + user.getName());
         txtAddressUser.setText("Address: " + user.getAddress());
-        createDataListChat();
-        oos.writeObject("CMD_LOGIN_CHAT|"+user.getUserId());
         isRunning = true;
-        thread=new Thread(this);
+        thread = new Thread(this);
         thread.start();
+        createDataListChat();
+        if (active == 0) {
+            oos.writeObject("CMD_LOGIN_CHAT|" + user.getUserId());
+        }
+        if (active > 0) {
+            System.out.println("id group new " + active);
+            oos.writeObject("CMD_UPDATE_NEW_GROUP|" + active);
+        }
+
         setTableListChat();
         setTableListFriend();
         setTabletblListGroup();
@@ -74,7 +90,7 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
 
     public void createDataListChat() {
         for (Group group : user.getListGroup()) {
-            if (group.getListMembers().size() > 2) {
+            if (group.getListUser().size() > 2) {
                 this.listGroup.add(group);
             } else {
                 this.listChat1.add(group);
@@ -186,6 +202,11 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        tblListGroup.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblListGroupMouseClicked(evt);
+            }
+        });
         jScrollPane4.setViewportView(tblListGroup);
 
         javax.swing.GroupLayout lstGroupChatSimpleLayout = new javax.swing.GroupLayout(lstGroupChatSimple);
@@ -297,10 +318,8 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
         jPanel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
         txtNameReceiver.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        txtNameReceiver.setText("Name receiver");
 
         txtStatus.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        txtStatus.setText("Online");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -326,11 +345,16 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
         );
 
         btnIcon.setBackground(new java.awt.Color(255, 255, 255));
-        btnIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icon_nhan_dan.png"))); // NOI18N
+        btnIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/cry.png"))); // NOI18N
+        btnIcon.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnIconMouseClicked(evt);
+            }
+        });
 
-        btnImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icon_image.png"))); // NOI18N
+        btnImage.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/grin.png"))); // NOI18N
 
-        btnFile.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icon_send_file.png"))); // NOI18N
+        btnFile.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/haha.png"))); // NOI18N
 
         edtSearch.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         edtSearch.setForeground(new java.awt.Color(153, 153, 153));
@@ -381,19 +405,18 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
                     .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnIcon, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnIcon)
+                        .addGap(17, 17, 17)
                         .addComponent(btnImage, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnFile, javax.swing.GroupLayout.DEFAULT_SIZE, 59, Short.MAX_VALUE)
+                        .addComponent(btnFile, javax.swing.GroupLayout.DEFAULT_SIZE, 41, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(edtMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 317, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnSend, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                        .addComponent(edtMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 339, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnSend, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -417,13 +440,15 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 358, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(btnIcon, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
-                            .addComponent(btnFile, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(edtMessage, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnImage, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnSend, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(btnFile, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(edtMessage, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(btnImage, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(btnSend, javax.swing.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE))
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(btnIcon, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -471,14 +496,9 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
     private void btnCreateGroupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateGroupActionPerformed
         try {
             // TODO add your handling code here:
-            isRunning=false;
-            thread.stop();
-            (new AddGroupForm(user, oos, ois)).setVisible(true);
-            this.dispose();
-            
+            oos.writeObject("CMD_CREATE_GROUP|" + user.getUserId());
+
         } catch (IOException ex) {
-            Logger.getLogger(HomeForm.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
             Logger.getLogger(HomeForm.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnCreateGroupActionPerformed
@@ -491,11 +511,11 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
         try {
             // TODO add your handling code here:
             oos.writeObject("CMD_QUIT_CHAT|" + user.getUserId());
-            isRunning=false;
+            isRunning = false;
             oos.close();
             ois.close();
             thread.stop();
-            (new LoginForm("not connect",oos, ois)).setVisible(true);
+            (new LoginForm("not connect", oos, ois)).setVisible(true);
             this.dispose();
         } catch (IOException ex) {
             Logger.getLogger(HomeForm.class.getName()).log(Level.SEVERE, null, ex);
@@ -503,9 +523,13 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
     }//GEN-LAST:event_logOutMouseClicked
 
     private void btnAddFriendActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddFriendActionPerformed
-        // TODO add your handling code here:
-//        (new AddFriendForm()).setVisible(true);
-//        this.dispose();
+        try {
+            // TODO add your handling code here:
+            oos.writeObject("CMD_FRIEND_REQUEST|" + user.getUserId());
+        } catch (IOException ex) {
+            Logger.getLogger(HomeForm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
     }//GEN-LAST:event_btnAddFriendActionPerformed
 
     private void listFriendMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listFriendMouseClicked
@@ -522,15 +546,7 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
     }//GEN-LAST:event_listFriendMouseClicked
 
     private void btnAddFriendMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnAddFriendMouseClicked
-        try {
-            // TODO add your handling code here:
-            (new AddFriendForm(user, oos, ois)).setVisible(true);
-            this.dispose();
-        } catch (IOException ex) {
-            Logger.getLogger(HomeForm.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(HomeForm.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
     }//GEN-LAST:event_btnAddFriendMouseClicked
 
     private void tblListChatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblListChatMouseClicked
@@ -542,12 +558,14 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
         if (row < tblListChat.getRowCount() && row >= 0
                 && column < tblListChat.getColumnCount() && column >= 0) {
             Group group = listChat1.get(row);
+            textMessage = "";
             groupChatNow = group;
-            System.out.println(group.getListUser().size());
+            txtAShowMessage.setText("");
+            //System.out.println(group.getListUser().size());
             User userReceiver = (group.getListUser().get(0).getName().equals(user.getName())) ? group.getListUser().get(1) : group.getListUser().get(0);
-//            String textMessage = "";
+
             for (int i = 0; i < group.getListMessages().size(); i++) {
-                System.out.println(group.getListMessages().get(i).getUser().getName() + ": " + group.getListMessages().get(i).getMessage());
+                //System.out.println(group.getListMessages().get(i).getUser().getName() + ": " + group.getListMessages().get(i).getMessage());
                 textMessage += group.getListMessages().get(i).getUser().getName() + ": " + group.getListMessages().get(i).getMessage() + "\n\n";
             }
             txtAShowMessage.setText(textMessage);
@@ -574,23 +592,43 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
     }//GEN-LAST:event_btnSendMouseClicked
 
     private void btnCreateGroupMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnCreateGroupMouseClicked
-        try {
-            // TODO add your handling code here:
-            (new AddGroupForm(user, oos, ois)).setVisible(true);
-            this.dispose();
-        } catch (IOException ex) {
-            Logger.getLogger(HomeForm.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(HomeForm.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
     }//GEN-LAST:event_btnCreateGroupMouseClicked
+
+    private void tblListGroupMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblListGroupMouseClicked
+        // TODO add your handling code here:
+        int column = tblListGroup.getColumnModel().
+                getColumnIndexAtX(evt.getX()); // get the coloum of the button
+        int row = evt.getY() / tblListGroup.getRowHeight(); // get row 
+        // *Checking the row or column is valid or not
+        if (row < tblListGroup.getRowCount() && row >= 0
+                && column < tblListGroup.getColumnCount() && column >= 0) {
+            Group group = listGroup.get(row);
+            groupChatNow = group;
+            String mess = "";
+            txtAShowMessage.setText(mess);
+            for (int i = 0; i < group.getListMessages().size(); i++) {
+                mess += group.getListMessages().get(i).getUser().getName() + ": " + group.getListMessages().get(i).getMessage() + "\n\n";
+            }
+            txtAShowMessage.setText(mess);
+            txtNameReceiver.setText(group.getNameGroup());
+            txtStatus.setText(group.getListUser().size() + " member");
+        }
+
+    }//GEN-LAST:event_tblListGroupMouseClicked
+ 
+    private void btnIconMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnIconMouseClicked
+         // TODO add your handling code here:
+         
+    }//GEN-LAST:event_btnIconMouseClicked
     public void setTableListChat() {
         DefaultTableModel dtm = new DefaultTableModel();
         dtm.setRowCount(0);
-        dtm.setColumnIdentifiers(new String[]{"Group Name"});
+        dtm.setColumnIdentifiers(new String[]{"Name"});
         if (listChat1 != null) {
             for (Group group : listChat1) {
-                dtm.addRow(new String[]{group.getNameGroup()});
+                System.out.println(group.getNameGroup()+" "+ group.getListUser().size());
+                dtm.addRow(new String[]{(group.getListUser().get(0).getUserId() == user.getUserId()) ? group.getListUser().get(1).getName() : group.getListUser().get(0).getName()});
             }
         }
         tblListChat.setModel(dtm);
@@ -619,6 +657,9 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
             }
         }
         tblListGroup.setModel(dtm);
+    }
+    private void render(String html){
+        
     }
 
 
@@ -659,7 +700,6 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
         String sender, receiver, fileName, thePersonIamChattingWith, thePersonSendFile;
         String msg;
         String cmd, icon;
-        PrivateChat pc;
 
         while (isRunning) {
             try {
@@ -689,7 +729,6 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
                             for (User user : user.getListGroup().get(i).getListUser()) {
                                 if (user.getUserId() == userId) {
                                     userReceiver = user;
-                                    System.out.println(userReceiver.getName());
                                 }
                             }
                             createDataListChat();
@@ -698,7 +737,6 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
                     }
                     if (groupId == groupChatNow.getGroupId()) {
                         String mess = txtAShowMessage.getText();
-                        groupChatNow.getListMessages().add(ms);
                         mess += userReceiver.getName() + ": " + message + "\n\n";
                         txtAShowMessage.setText(mess);
                         //edtMessage.setText("");
@@ -708,7 +746,7 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
                 case "CMD_UPDATE_STATUS_CLIENT":
                     int userid = Integer.parseInt(tokenizer.nextToken());
                     int status = Integer.parseInt(tokenizer.nextToken());
-                    System.out.println("user moi dang nhap "+userid);
+                    System.out.println("user moi dang nhap " + userid);
                     for (int i = 0; i < listFriend1.size(); i++) {
                         if (listFriend1.get(i).getUserId() == userid) {
                             listFriend1.get(i).setActiveStatus(status);
@@ -718,12 +756,75 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
                         for (int j = 0; j < listChat1.get(i).getListUser().size(); j++) {
                             if (listChat1.get(i).getListUser().get(j).getUserId() == userid) {
                                 listChat1.get(i).getListUser().get(j).setActiveStatus(status);
-                                if(listChat1.get(i).getGroupId()==groupChatNow.getGroupId()){
-                                    if(status==1) txtStatus.setText("Online");
-                                    else txtStatus.setText("Offline");
+                                if (listChat1.get(i).getGroupId() == groupChatNow.getGroupId()) {
+                                    if (status == 1) {
+                                        txtStatus.setText("Online");
+                                    } else {
+                                        txtStatus.setText("Offline");
+                                    }
                                 }
                             }
                         }
+                    }
+                    break;
+                case "CMD_GROUP_CREATED":
+                    int idGroup = Integer.parseInt(tokenizer.nextToken());
+                    Group newGroup = new Group();
+                    newGroup.setGroupId(idGroup);
+
+                    isRunning = false;
+                    try {
+                        (new AddGroupForm(socket, user, oos, ois, newGroup)).setVisible(true);
+                        this.dispose();
+                    } catch (IOException ex) {
+                        Logger.getLogger(HomeForm.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (ClassNotFoundException ex) {
+                        Logger.getLogger(HomeForm.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    break;
+                case "CMD_NEW_GROUP":
+
+                    Group newGroup1 = new Group();
+                    newGroup1.setGroupId(Integer.parseInt(tokenizer.nextToken()));
+                    System.out.println("them group moi " + newGroup1.getGroupId());
+                    newGroup1.setNameGroup(tokenizer.nextToken());
+                    ArrayList<User> listMember = new ArrayList<>();
+                    String id = tokenizer.nextToken();
+                    while (!id.equals("end")) {
+                        for (int i = 0; i < listFriend1.size(); i++) {
+                            if (Integer.parseInt(id) == listFriend1.get(i).getUserId()) {
+                                listMember.add(listFriend1.get(i));
+                            }
+                        }
+                        id = tokenizer.nextToken();
+                    }
+                    newGroup1.setListUser(listMember);
+                    user.getListGroup().add(newGroup1);
+                    createDataListChat();
+                    setTableListChat();
+                    setTableListFriend();
+                    setTabletblListGroup();
+                    break;
+                case "CMD_GET_FRIEND_REQUEST":
+                    ArrayList<User> listFriendRequest = new ArrayList<>();
+                    String idu = tokenizer.nextToken();
+                    String nameu = tokenizer.nextToken();
+                    while (!idu.equals("end") && !nameu.equals("end")) {
+                        User userRequest = new User();
+                        userRequest.setUserId(Integer.parseInt(idu));
+                        userRequest.setName(nameu);
+                        listFriendRequest.add(userRequest);
+                        idu = tokenizer.nextToken();
+                        nameu = tokenizer.nextToken();
+                    }
+                    isRunning = false;
+                    try {
+                        (new AddFriendForm(user, oos, ois, listFriendRequest)).setVisible(true);
+                        this.dispose();
+                    } catch (IOException ex) {
+                        Logger.getLogger(HomeForm.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (ClassNotFoundException ex) {
+                        Logger.getLogger(HomeForm.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     break;
                 default:

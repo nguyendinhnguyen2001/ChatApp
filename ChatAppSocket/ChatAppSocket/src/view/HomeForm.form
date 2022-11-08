@@ -56,21 +56,20 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jScrollPane1" alignment="0" max="32767" attributes="0"/>
-                  <Component id="jPanel1" alignment="0" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
-                      <Component id="btnIcon" min="-2" pref="50" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="btnIcon" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="17" max="-2" attributes="0"/>
                       <Component id="btnImage" min="-2" pref="50" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="btnFile" pref="59" max="32767" attributes="0"/>
+                      <Component id="btnFile" pref="41" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="edtMessage" min="-2" pref="317" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                      <Component id="btnSend" min="-2" pref="47" max="-2" attributes="0"/>
+                      <Component id="edtMessage" min="-2" pref="339" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="btnSend" min="-2" pref="62" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="jPanel1" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" alignment="0" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -101,14 +100,18 @@
                   <Group type="102" attributes="0">
                       <Component id="jScrollPane1" min="-2" pref="358" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="btnIcon" alignment="0" pref="68" max="32767" attributes="0"/>
-                          <Component id="btnFile" alignment="0" max="32767" attributes="0"/>
-                          <Component id="edtMessage" alignment="0" max="32767" attributes="0"/>
-                          <Component id="btnImage" alignment="0" max="32767" attributes="0"/>
-                          <Component id="btnSend" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                  <Component id="btnFile" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="edtMessage" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="btnImage" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="btnSend" pref="68" max="32767" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                          </Group>
+                          <Component id="btnIcon" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
                   <Component id="jTabbedPane1" pref="0" max="32767" attributes="0"/>
               </Group>
@@ -278,6 +281,9 @@
                       <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                     </Property>
                   </Properties>
+                  <Events>
+                    <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tblListGroupMouseClicked"/>
+                  </Events>
                 </Component>
               </SubComponents>
             </Container>
@@ -487,7 +493,6 @@
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Tahoma" size="14" style="1"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="Name receiver"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="txtStatus">
@@ -495,7 +500,6 @@
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Tahoma" size="12" style="0"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="Online"/>
           </Properties>
         </Component>
       </SubComponents>
@@ -506,21 +510,24 @@
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/images/icon_nhan_dan.png"/>
+          <Image iconType="3" name="/images/cry.png"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="btnIconMouseClicked"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="btnImage">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/images/icon_image.png"/>
+          <Image iconType="3" name="/images/grin.png"/>
         </Property>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="btnFile">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/images/icon_send_file.png"/>
+          <Image iconType="3" name="/images/haha.png"/>
         </Property>
       </Properties>
     </Component>

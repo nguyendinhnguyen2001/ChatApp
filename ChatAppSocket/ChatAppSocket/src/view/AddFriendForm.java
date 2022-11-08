@@ -5,7 +5,7 @@
  */
 package view;
 
-import controller.ClientFrame;
+
 import java.awt.Color;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -37,17 +37,15 @@ public class AddFriendForm extends javax.swing.JFrame {
     private User user;
     private ArrayList<User> listFriendRequest;
     private ArrayList<Group> listGroup;
-    private ArrayList<User> listUser, listUserSearch;
-    private Map<String, Integer> listRelationship;
+    private ArrayList<User> listUserSearch;
 
-    public AddFriendForm(User user, ObjectOutputStream oos, ObjectInputStream ois) throws IOException, ClassNotFoundException {
+    public AddFriendForm(User user, ObjectOutputStream oos, ObjectInputStream ois, ArrayList<User> listFriendRequest) throws IOException, ClassNotFoundException {
         initComponents();
         this.ois = ois;
         this.oos = oos;
         this.user = user;
         this.listUserSearch = new ArrayList<>();
-        this.listFriendRequest = new ArrayList<>();
-        this.listRelationship = new HashMap<>();
+        this.listFriendRequest = listFriendRequest;
 //        getAddFriend();
         showRequestFriend();
 
@@ -55,16 +53,13 @@ public class AddFriendForm extends javax.swing.JFrame {
 //        this.listUser = listUser;
     }
 
+    public void showRequestFriend() throws IOException, ClassNotFoundException {
 
-    public void showRequestFriend() throws IOException, ClassNotFoundException{
-        oos.writeObject("CMD_FRIEND_REQUEST|" + user.getUserId());
-        listFriendRequest = (ArrayList<User>) ois.readObject();
         DefaultTableModel dtm = new DefaultTableModel();
         dtm.setRowCount(0);
-        dtm.setColumnIdentifiers(new String[]{"Nick Name","Action"});
+        dtm.setColumnIdentifiers(new String[]{"Nick Name", "Action"});
         for (User user : listFriendRequest) {
-            dtm.addRow(new String[]{user.getName(),"confirm"});
-                System.out.println(user.getName());
+            dtm.addRow(new String[]{user.getName(), "confirm"});
         }
         tblFriendRequest.setModel(dtm);
     }
@@ -72,10 +67,10 @@ public class AddFriendForm extends javax.swing.JFrame {
     public void showDataTableSearch() {
         DefaultTableModel dtm = new DefaultTableModel();
         dtm.setRowCount(0);
-        dtm.setColumnIdentifiers(new String[]{"Name"});
+        dtm.setColumnIdentifiers(new String[]{"Name","Status"});
         for (User user : listUserSearch) {
             //dtm.addRow(new String[]{user.getName(), (listRelationship.get(user.getName()) == 1) ? "friend" : ((listRelationship.get(user.getName()) == 2) ? "added friend" : ((listRelationship.get(user.getName()) == 3) ? "confirm" : "add friend"))});
-            dtm.addRow(new String[]{user.getName()});
+            dtm.addRow(new String[]{user.getName(),(user.getRelationship()==0)?"Add friend":((user.getRelationship()==1)?"Is friend":((user.getRelationship()==2)?"Sent friend":"Confirm"))});
         }
         tblUserSearch.setModel(dtm);
     }
@@ -171,6 +166,11 @@ public class AddFriendForm extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
+        tblUserSearch.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblUserSearchMouseClicked(evt);
+            }
+        });
         jScrollPane2.setViewportView(tblUserSearch);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -245,7 +245,7 @@ public class AddFriendForm extends javax.swing.JFrame {
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
         try {
             // TODO add your handling code here:
-            (new HomeForm(socket, user, ois, oos)).setVisible(true);
+            (new HomeForm(socket, user, ois, oos, -1)).setVisible(true);
         } catch (IOException ex) {
             Logger.getLogger(AddFriendForm.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -256,14 +256,13 @@ public class AddFriendForm extends javax.swing.JFrame {
         // TODO add your handling code here:
         String keySearch = edtSearch.getText().toString();
         try {
-            oos.writeObject("CMD_SEARCH_USER|"+ keySearch);
+            oos.writeObject("CMD_SEARCH_USER|" + keySearch);
         } catch (IOException ex) {
             Logger.getLogger(AddFriendForm.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         try {
             listUserSearch = (ArrayList<User>) ois.readObject();
-            System.out.println(listUserSearch.size());
 //            listRelationship = (Map<String, Integer>) ois.readObject();
         } catch (IOException ex) {
             Logger.getLogger(AddFriendForm.class.getName()).log(Level.SEVERE, null, ex);
@@ -287,9 +286,16 @@ public class AddFriendForm extends javax.swing.JFrame {
             if (choice == JOptionPane.YES_OPTION) {
                 try {
                     oos.writeObject("CMD_CONFIRM_ADD_FRIEND|" + user.getUserId() + "|" + actionUser.getUserId());
-                    listUser.add(actionUser);
-                    listRelationship.put(actionUser.getName(), 1);
+                    actionUser.setRelationship(1);
+                    user.getListFriend().add(actionUser);
                     listFriendRequest.remove(actionUser);
+                    for(int i=0;i<listUserSearch.size();i++){
+                        if(actionUser.getUserId()==listUserSearch.get(i).getUserId()){
+                            listUserSearch.get(i).setRelationship(1);
+                            showDataTableSearch();
+                            break;
+                        }
+                    }
                     showRequestFriend();
                 } catch (IOException ex) {
                     Logger.getLogger(AddFriendForm.class.getName()).log(Level.SEVERE, null, ex);
@@ -299,6 +305,62 @@ public class AddFriendForm extends javax.swing.JFrame {
             }
         }
     }//GEN-LAST:event_tblFriendRequestMouseClicked
+
+    private void tblUserSearchMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblUserSearchMouseClicked
+        // TODO add your handling code here:
+        int column = tblUserSearch.getColumnModel().
+                getColumnIndexAtX(evt.getX()); // get the coloum of the button
+        int row = evt.getY() / tblUserSearch.getRowHeight(); // get row 
+        // *Checking the row or column is valid or not
+        if (row < tblUserSearch.getRowCount() && row >= 0
+                && column < tblUserSearch.getColumnCount() && column >= 0) {
+            User actionUser = listUserSearch.get(row);
+            if (actionUser.getRelationship()==1) {
+                int choice = JOptionPane.showConfirmDialog(this, "Do you want delete friend " + actionUser.getName() + " ?", "Ask", JOptionPane.YES_NO_OPTION);
+                if (choice == JOptionPane.YES_OPTION) {
+                    try {
+                        oos.writeObject("CMD_DELETE_FRIEND|" + user.getUserId() + "|" + actionUser.getUserId());
+                        user.getListFriend().remove(actionUser);
+                        listUserSearch.get(row).setRelationship(0);
+                        showDataTableSearch();
+                    } catch (IOException ex) {
+                        Logger.getLogger(AddFriendForm.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            } else {
+                if (actionUser.getRelationship()==0) {
+                    int choice = JOptionPane.showConfirmDialog(this, "Do you want add friend " + actionUser.getName() + " ?", "Ask", JOptionPane.YES_NO_OPTION);
+                    if (choice == JOptionPane.YES_OPTION) {
+                        try {
+                            oos.writeObject("CMD_ADD_FRIEND|" + user.getUserId() + "|" + actionUser.getUserId());
+                            listUserSearch.get(row).setRelationship(2);
+                            showDataTableSearch();
+                        } catch (IOException ex) {
+                            Logger.getLogger(AddFriendForm.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                } else {
+                    if (actionUser.getRelationship()==3) {
+                        int choice = JOptionPane.showConfirmDialog(this, "Do you want confirm friend " + actionUser.getName() + " ?", "Ask", JOptionPane.YES_NO_OPTION);
+                        if (choice == JOptionPane.YES_OPTION) {
+                            try {
+                                oos.writeObject("CMD_CONFIRM_ADD_FRIEND|" + user.getUserId() + "|" + actionUser.getUserId());
+                                user.getListFriend().add(actionUser);
+                                listUserSearch.get(row).setRelationship(1);
+                                showDataTableSearch();
+                            } catch (IOException ex) {
+                                Logger.getLogger(AddFriendForm.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(this, "You sent request this friend!");
+                    }
+                }
+            }
+        }
+
+        
+    }//GEN-LAST:event_tblUserSearchMouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -5,7 +5,6 @@
  */
 package view;
 
-import controller.ClientFrame;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -35,15 +34,15 @@ public class AddGroupForm extends javax.swing.JFrame {
     private Group newGroup;
     private User user;
     private ArrayList<User> listFriendSearch,listMemberGourp;
-    public AddGroupForm(User user, ObjectOutputStream oos, ObjectInputStream ois) throws IOException, ClassNotFoundException {
+    Thread thread;
+    public AddGroupForm(Socket socket,User user, ObjectOutputStream oos, ObjectInputStream ois,Group newGroup) throws IOException, ClassNotFoundException {
         listFriendSearch = new ArrayList<>();
         listMemberGourp=new ArrayList<>();
         this.ois = ois;
         this.oos = oos;
+        this.socket=socket;
         this.user = user;
-        oos.writeObject("CMD_CREATE_GROUP|"+user.getUserId());
-        newGroup=(Group) ois.readObject();
-        System.out.println(newGroup.getGroupId());
+        this.newGroup=newGroup;
         initComponents();
     }
 
@@ -60,7 +59,7 @@ public class AddGroupForm extends javax.swing.JFrame {
         } catch (java.net.NoRouteToHostException e) {
             JOptionPane.showMessageDialog(this, "Can't find this host!\nPlease try again!", "Failed to connect to server", JOptionPane.ERROR_MESSAGE);
         } catch (IOException ex) {
-            Logger.getLogger(ClientFrame.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(ClientFrame.class.getName()).log(Level.SEVERE, null, ex);
 
         }
     }
@@ -277,8 +276,8 @@ public class AddGroupForm extends javax.swing.JFrame {
         try {
             // TODO add your handling code here:
             oos.writeObject("CMD_REMOVE_CREATE_GROUP|"+newGroup.getGroupId());
-//        (new HomeForm()).setVisible(true);
-//        this.dispose();
+        (new HomeForm(socket, user,ois, oos, -1)).setVisible(true);
+        this.dispose();
         } catch (IOException ex) {
             Logger.getLogger(AddGroupForm.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -287,11 +286,9 @@ public class AddGroupForm extends javax.swing.JFrame {
     private void btnCreateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateActionPerformed
         try {
             // TODO add your handling code here:
-            oos.writeObject("CMD_SAVE_GROUP|"+edtNameOfGroup.getText().toString());
-            newGroup.setNameGroup(edtNameOfGroup.getText().toString());
-            listGroup.add(newGroup);
-//        (new HomeForm()).setVisible(true);
-//        this.dispose();
+            oos.writeObject("CMD_SAVE_GROUP|"+newGroup.getGroupId()+"|"+edtNameOfGroup.getText().toString());
+            (new HomeForm(socket,user,ois,oos,newGroup.getGroupId())).setVisible(true);
+            this.dispose();
         } catch (IOException ex) {
             Logger.getLogger(AddGroupForm.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -299,19 +296,12 @@ public class AddGroupForm extends javax.swing.JFrame {
 
     private void btnSearchMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSearchMouseClicked
         // TODO add your handling code here:
+        listFriendSearch=new ArrayList<>();
         String keySearch = edtSearch.getText().toString();
-        try {
-            oos.writeObject("CMD_SEARCH_FRIEND|"+user.getUserId()+"|" + keySearch);
-        } catch (IOException ex) {
-            Logger.getLogger(AddFriendForm.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        try {
-            listFriendSearch = (ArrayList<User>) ois.readObject();
-        } catch (IOException ex) {
-            Logger.getLogger(AddFriendForm.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(AddFriendForm.class.getName()).log(Level.SEVERE, null, ex);
+        for(int i=0;i<user.getListFriend().size();i++){
+            if(user.getListFriend().get(i).getName().toLowerCase().contains(keySearch.toLowerCase())){
+                listFriendSearch.add(user.getListFriend().get(i));
+            }
         }
         if (listFriendSearch.size() != 0) {
             showDataFriendSearch();
@@ -390,7 +380,7 @@ public class AddGroupForm extends javax.swing.JFrame {
     private void edtSearchFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_edtSearchFocusGained
         // TODO add your handling code here:
         
-        if (edtSearch.getText().equals("username")) {
+        if (edtSearch.getText().equals("Search")) {
             edtSearch.setText("");
             edtSearch.setForeground(new Color(0, 0, 0));
         }
@@ -399,14 +389,14 @@ public class AddGroupForm extends javax.swing.JFrame {
     private void edtSearchFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_edtSearchFocusLost
         // TODO add your handling code here:
         if (edtSearch.getText().equals("")) {
-            edtSearch.setText("username");
+            edtSearch.setText("Search");
             edtSearch.setForeground(new Color(153, 153, 153));
         }
     }//GEN-LAST:event_edtSearchFocusLost
 
     private void edtNameOfGroupFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_edtNameOfGroupFocusGained
         // TODO add your handling code here:
-        if (edtNameOfGroup.getText().equals("username")) {
+        if (edtNameOfGroup.getText().equals("Name of group")) {
             edtNameOfGroup.setText("");
             edtNameOfGroup.setForeground(new Color(0, 0, 0));
         }
@@ -415,7 +405,7 @@ public class AddGroupForm extends javax.swing.JFrame {
     private void edtNameOfGroupFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_edtNameOfGroupFocusLost
         // TODO add your handling code here:
         if (edtNameOfGroup.getText().equals("")) {
-            edtNameOfGroup.setText("username");
+            edtNameOfGroup.setText("Name of group");
             edtNameOfGroup.setForeground(new Color(153, 153, 153));
         }
     }//GEN-LAST:event_edtNameOfGroupFocusLost

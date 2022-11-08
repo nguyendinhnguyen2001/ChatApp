@@ -24,6 +24,17 @@ public class User implements Serializable{
     private int activeStatus;
     private List<User> listFriend;
     private List<Group> listGroup;
+    private int relationship;
+
+    public int getRelationship() {
+        return relationship;
+    }
+
+    public void setRelationship(int relationship) {
+        this.relationship = relationship;
+    }
+
+    
     
 
     public User() {
@@ -123,6 +134,7 @@ public class User implements Serializable{
                 ", address='" + address + '\'' +
                 ", activeStatus=" + activeStatus +
                 '}';
-    }  
-}
+    }
 
+    
+}

@@ -5,9 +5,7 @@
  */
 package view;
 
-import controller.ClientFrame;
-import static controller.ClientFrame.NICKNAME_EXIST;
-import static controller.ClientFrame.NICKNAME_INVALID;
+
 import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -60,7 +58,7 @@ public class LoginForm extends javax.swing.JFrame {
             this.oos = oos;
             this.ois = ois;
         } else {
-            Socket socket = new Socket("192.168.0.101", 9999);
+            Socket socket = new Socket("192.168.0.103", 9999);
             this.oos = new ObjectOutputStream(socket.getOutputStream());
             this.ois = new ObjectInputStream(socket.getInputStream());
         }
@@ -90,7 +88,7 @@ public class LoginForm extends javax.swing.JFrame {
         } catch (java.net.NoRouteToHostException e) {
             JOptionPane.showMessageDialog(this, "Can't find this host!\nPlease try again!", "Failed to connect to server", JOptionPane.ERROR_MESSAGE);
         } catch (IOException ex) {
-            Logger.getLogger(ClientFrame.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(ClientFrame.class.getName()).log(Level.SEVERE, null, ex);
 
         }
     }
@@ -101,7 +99,7 @@ public class LoginForm extends javax.swing.JFrame {
 
         jLabel1 = new javax.swing.JLabel();
         edtUserName = new javax.swing.JTextField();
-        edtPassWord = new javax.swing.JTextField();
+        edtPassWord = new javax.swing.JPasswordField();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         btnLogin = new javax.swing.JButton();
@@ -282,7 +280,7 @@ public class LoginForm extends javax.swing.JFrame {
 
     private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
         // TODO add your handling code here:
-        this.serverHost = "192.168.0.101";
+        this.serverHost = "192.168.0.105";
         User user = new User();
 
         user.setUserName(edtUserName.getText());
@@ -324,7 +322,7 @@ public class LoginForm extends javax.swing.JFrame {
             o = (User) this.ois.readObject();
             //ArrayList<Group> listGroup = (ArrayList<Group>) this.ois.readObject();
             //ArrayList<User>listUser = (ArrayList<User>) this.ois.readObject();
-            new HomeForm(socketOfClient, o, ois, oos).setVisible(true);
+            new HomeForm(socketOfClient, o, ois, oos,0).setVisible(true);
             this.dispose();
         } catch (IOException ex) {
             Logger.getLogger(LoginForm.class.getName()).log(Level.SEVERE, null, ex);
@@ -368,7 +366,7 @@ public class LoginForm extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        Socket socket = new Socket("192.168.0.101", 9999);
+        Socket socket = new Socket("192.168.0.103", 9999);
         ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
         ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 

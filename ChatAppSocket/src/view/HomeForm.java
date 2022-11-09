@@ -616,10 +616,10 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
         }
 
     }//GEN-LAST:event_tblListGroupMouseClicked
- 
+
     private void btnIconMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnIconMouseClicked
-         // TODO add your handling code here:
-         
+        // TODO add your handling code here:
+
     }//GEN-LAST:event_btnIconMouseClicked
     public void setTableListChat() {
         DefaultTableModel dtm = new DefaultTableModel();
@@ -627,7 +627,7 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
         dtm.setColumnIdentifiers(new String[]{"Name"});
         if (listChat1 != null) {
             for (Group group : listChat1) {
-                System.out.println(group.getNameGroup()+" "+ group.getListUser().size());
+                System.out.println(group.getNameGroup() + " " + group.getListUser().size());
                 dtm.addRow(new String[]{(group.getListUser().get(0).getUserId() == user.getUserId()) ? group.getListUser().get(1).getName() : group.getListUser().get(0).getName()});
             }
         }
@@ -658,8 +658,9 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
         }
         tblListGroup.setModel(dtm);
     }
-    private void render(String html){
-        
+
+    private void render(String html) {
+
     }
 
 
@@ -805,6 +806,27 @@ public class HomeForm extends javax.swing.JFrame implements Runnable {
                     setTableListFriend();
                     setTabletblListGroup();
                     break;
+                case "CMD_NOTIFY_GROUP":
+                    String id_group = tokenizer.nextToken();
+                    String name_group = tokenizer.nextToken();
+                    String id_member = tokenizer.nextToken();
+                    ArrayList<User> listMemberNewGroup = new ArrayList<>();
+                    while (!id_member.equals("end")) {
+                        User member = new User();
+                        member.setUserId(Integer.parseInt(id_member));
+                        listMemberNewGroup.add(member);
+                    }
+                    Group new_group = new Group();
+                    new_group.setGroupId(Integer.parseInt(id_group));
+                    new_group.setNameGroup(name_group);
+                    new_group.setListMessages(new ArrayList<>());
+                    new_group.setListUser(listMemberNewGroup);
+                    user.getListGroup().add(new_group);
+                    setTableListChat();
+                    setTableListFriend();
+                    setTabletblListGroup();
+                    break;
+
                 case "CMD_GET_FRIEND_REQUEST":
                     ArrayList<User> listFriendRequest = new ArrayList<>();
                     String idu = tokenizer.nextToken();

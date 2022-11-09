@@ -319,8 +319,14 @@ public class AddFriendForm extends javax.swing.JFrame {
                 int choice = JOptionPane.showConfirmDialog(this, "Do you want delete friend " + actionUser.getName() + " ?", "Ask", JOptionPane.YES_NO_OPTION);
                 if (choice == JOptionPane.YES_OPTION) {
                     try {
+                        ArrayList<User> list=new ArrayList<>();
                         oos.writeObject("CMD_DELETE_FRIEND|" + user.getUserId() + "|" + actionUser.getUserId());
-                        user.getListFriend().remove(actionUser);
+                        for(int i=0;i<user.getListFriend().size();i++){
+                            if(user.getListFriend().get(i).getUserId()!=actionUser.getUserId()){
+                                list.add(user.getListFriend().get(i));
+                            }
+                        }
+                        user.setListFriend(list);
                         listUserSearch.get(row).setRelationship(0);
                         showDataTableSearch();
                     } catch (IOException ex) {

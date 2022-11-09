@@ -58,7 +58,7 @@ public class LoginForm extends javax.swing.JFrame {
             this.oos = oos;
             this.ois = ois;
         } else {
-            Socket socket = new Socket("192.168.0.103", 9999);
+            Socket socket = new Socket("10.20.130.188", 9999);
             this.oos = new ObjectOutputStream(socket.getOutputStream());
             this.ois = new ObjectInputStream(socket.getInputStream());
         }
@@ -366,7 +366,7 @@ public class LoginForm extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        Socket socket = new Socket("192.168.0.103", 9999);
+        Socket socket = new Socket("10.20.130.188", 9999);
         ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
         ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 
